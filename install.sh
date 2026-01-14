@@ -29,6 +29,7 @@ cp "$SCRIPT_DIR/skills/eval/SKILL.md" "$TARGET_DIR/skills/eval/"
 cp "$SCRIPT_DIR/agents/eval-builder.md" "$TARGET_DIR/agents/"
 cp "$SCRIPT_DIR/agents/eval-verifier.md" "$TARGET_DIR/agents/"
 cp "$SCRIPT_DIR/commands/eval.md" "$TARGET_DIR/commands/"
+cp "$SCRIPT_DIR/commands/implement.md" "$TARGET_DIR/commands/"
 
 [[ "$CLEANUP" == "true" ]] && rm -rf "$SCRIPT_DIR"
 
