@@ -1,48 +1,38 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "eval-skill installer"
-echo "===================="
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="https://github.com/harivansh-afk/eval-skill"
 TARGET_DIR=".claude"
 
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --global|-g) TARGET_DIR="$HOME/.claude"; shift ;;
-        --help|-h)
-            echo "Usage: ./install.sh [--global]"
-            echo "  --global, -g  Install to ~/.claude (all projects)"
-            echo "  Default: ./.claude (current project)"
-            exit 0 ;;
-        *) echo "Unknown: $1"; exit 1 ;;
+for arg in "$@"; do
+    case $arg in
+        --global|-g) TARGET_DIR="$HOME/.claude" ;;
+        --help|-h) echo "Usage: ./install.sh [--global]"; exit 0 ;;
     esac
 done
 
-echo "Installing to: $TARGET_DIR"
+echo "eval-skill → $TARGET_DIR"
 
-# Create dirs
-mkdir -p "$TARGET_DIR/skills/eval"
-mkdir -p "$TARGET_DIR/commands"
-mkdir -p "$TARGET_DIR/agents"
-mkdir -p "$TARGET_DIR/evals"
+# If not in repo, clone to temp
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}" 2>/dev/null)" && pwd 2>/dev/null)" || SCRIPT_DIR=""
+if [[ -z "$SCRIPT_DIR" ]] || [[ ! -f "$SCRIPT_DIR/skills/eval/SKILL.md" ]]; then
+    SCRIPT_DIR=$(mktemp -d)
+    git clone --quiet --depth 1 "$REPO" "$SCRIPT_DIR"
+    CLEANUP=true
+else
+    CLEANUP=false
+fi
 
-# Install files
-cp "$SCRIPT_DIR/skills/eval/SKILL.md" "$TARGET_DIR/skills/eval/SKILL.md"
-cp "$SCRIPT_DIR/agents/eval-builder.md" "$TARGET_DIR/agents/eval-builder.md"
-cp "$SCRIPT_DIR/agents/eval-verifier.md" "$TARGET_DIR/agents/eval-verifier.md"
-cp "$SCRIPT_DIR/commands/eval.md" "$TARGET_DIR/commands/eval.md"
+# Install
+mkdir -p "$TARGET_DIR/skills/eval" "$TARGET_DIR/commands" "$TARGET_DIR/agents" "$TARGET_DIR/evals"
+cp "$SCRIPT_DIR/skills/eval/SKILL.md" "$TARGET_DIR/skills/eval/"
+cp "$SCRIPT_DIR/agents/eval-builder.md" "$TARGET_DIR/agents/"
+cp "$SCRIPT_DIR/agents/eval-verifier.md" "$TARGET_DIR/agents/"
+cp "$SCRIPT_DIR/commands/eval.md" "$TARGET_DIR/commands/"
 
-echo "✓ Installed"
+[[ "$CLEANUP" == "true" ]] && rm -rf "$SCRIPT_DIR"
+
+echo "✓ Done"
 echo ""
-echo "Components:"
-echo "  Skill:    $TARGET_DIR/skills/eval/"
-echo "  Builder:  $TARGET_DIR/agents/eval-builder.md"
-echo "  Verifier: $TARGET_DIR/agents/eval-verifier.md"
-echo "  Command:  $TARGET_DIR/commands/eval.md"
-echo "  Evals:    $TARGET_DIR/evals/"
-echo ""
-echo "Usage:"
 echo "  Create evals:  'Create evals for [feature]'"
 echo "  Build+verify:  /eval build <name>"
-echo "  Verify only:   /eval verify <name>"
