@@ -1,7 +1,7 @@
 # eval-skill
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/harivansh-afk/eval-skill/main/install.sh | bash
+curl -fsSL https://git.harivan.sh/harivansh-afk/eval-skill/raw/branch/main/install.sh | bash
 ```
 
 Verification-first development for Claude Code. Define what success looks like, then let Claude build and verify.
